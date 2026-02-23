@@ -1,0 +1,5 @@
+# Gym Management Software - dependencies
+# Install with: python -m pip install -r requirements.txt
+# (Optional - app runs without these; needed only for Excel export)
+pandas>=2.0
+openpyxl>=3.0
