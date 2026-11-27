@@ -3,9 +3,9 @@
 
 a = Analysis(
     ['app.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
-    datas=[('gym.db', '.')],
+    datas=[('gym.db', '.'), ('logo.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
