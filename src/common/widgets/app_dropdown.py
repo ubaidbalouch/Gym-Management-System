@@ -345,6 +345,8 @@ class AppDropdown(ttk.Frame):
     def _on_box_click(self, event) -> None:
         if self._readonly or event.x >= max(0, self._box.winfo_width() - 32):
             self._toggle_sheet()
+        elif hasattr(self, "entry"):
+            self.entry.focus_set()
 
     def _toggle_sheet(self) -> None:
         if self._sheet is not None and self._sheet.winfo_exists():
