@@ -99,37 +99,49 @@ class _DropdownSheet(tk.Toplevel):
             )
 
         self._parent_cfg_bind_id: Optional[str] = None
+        self._parent_esc_bind_id: Optional[str] = None
         top = owner.winfo_toplevel()
         self._parent_cfg_bind_id = top.bind(
             "<Configure>",
             lambda e, t=top: self.close() if e.widget is t else None,
             add="+",
         )
+        self._parent_esc_bind_id = top.bind("<Escape>", lambda _e: self.close(), add="+")
 
-        self.bind("<Escape>", lambda _e: self.close())
         self.bind("<ButtonPress-1>", self._on_global_press)
         self.update_idletasks()
         self.lift()
-        self.grab_set()
         try:
-            self.focus_force()
+            self.grab_set()
         except tk.TclError:
             pass
 
     def close(self) -> None:
-        """Release grab, unbind parent listeners, and close the dropdown sheet."""
+        """Release grab, unbind parent listeners, and restore focus to parent window."""
+        top = self._owner.winfo_toplevel()
         if self._parent_cfg_bind_id:
             try:
-                self._owner.winfo_toplevel().unbind("<Configure>", self._parent_cfg_bind_id)
+                top.unbind("<Configure>", self._parent_cfg_bind_id)
             except Exception:
                 pass
             self._parent_cfg_bind_id = None
+        if self._parent_esc_bind_id:
+            try:
+                top.unbind("<Escape>", self._parent_esc_bind_id)
+            except Exception:
+                pass
+            self._parent_esc_bind_id = None
         if self.winfo_exists():
             try:
                 self.grab_release()
             except tk.TclError:
                 pass
             self.destroy()
+        try:
+            if top.winfo_exists():
+                top.focus_set()
+        except tk.TclError:
+            pass
 
     def _on_global_press(self, event) -> None:
         """Close the sheet when clicking anywhere outside its bounds."""
@@ -345,6 +357,8 @@ class AppDropdown(ttk.Frame):
     def _on_box_click(self, event) -> None:
         if self._readonly or event.x >= max(0, self._box.winfo_width() - 32):
             self._toggle_sheet()
+        elif hasattr(self, "entry"):
+            self.entry.focus_set()
 
     def _toggle_sheet(self) -> None:
         if self._sheet is not None and self._sheet.winfo_exists():

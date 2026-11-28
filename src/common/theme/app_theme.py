@@ -145,9 +145,9 @@ class AppSpacing:
 class AppRadius:
     """Border radii for rounded shadcn/ui Zinc Dark surfaces and pills."""
 
-    control: int = 8
-    card: int = 12
-    pill: int = 14
+    control: int = 10
+    card: int = 14
+    pill: int = 16
 
 
 class AppTheme:

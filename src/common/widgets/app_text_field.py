@@ -53,6 +53,7 @@ class AppTextField(ttk.Frame):
             bg=self._canvas_bg,
             bd=0,
             highlightthickness=0,
+            cursor="xterm" if not readonly else "",
         )
         self._box.pack(side="left", fill="x", expand=True)
 
@@ -81,6 +82,8 @@ class AppTextField(ttk.Frame):
         self._entry_win = self._box.create_window(10, 17, anchor="w", window=self.entry)
 
         self._box.bind("<Configure>", self._on_box_resize)
+        if not readonly:
+            self._box.bind("<Button-1>", self._on_box_click, add="+")
         self.entry.bind("<FocusIn>", self._on_focus_in, add="+")
         self.entry.bind("<FocusOut>", self._on_focus_out, add="+")
 
@@ -157,6 +160,11 @@ class AppTextField(ttk.Frame):
             self.var.set("")
             self.entry.configure(foreground=AppTheme.colors.text_primary)
 
+    def _on_box_click(self, _event=None) -> None:
+        if not self._readonly:
+            self._clear_placeholder()
+            self.entry.focus_set()
+
     def _on_focus_in(self, _event=None) -> None:
         self._focused = True
         if not self._readonly:
@@ -164,6 +172,9 @@ class AppTextField(ttk.Frame):
         self._redraw_box()
 
     def _on_key_release(self, _event=None) -> None:
+        if self._showing_placeholder:
+            self._showing_placeholder = False
+            self.entry.configure(foreground=AppTheme.colors.text_primary)
         if self._has_error and self.get().strip():
             self.clear_error()
 

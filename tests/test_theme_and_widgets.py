@@ -56,7 +56,12 @@ class TestThemeAndWidgets(unittest.TestCase):
 
     def test_text_field_and_readonly_behavior(self) -> None:
         field = AppTextField(self.root, label="Name", placeholder="Enter name")
+        field.pack(fill="x")
+        self.root.update_idletasks()
         self.assertEqual(field.get(), "")
+        field._on_box_click()
+        field.entry.insert(0, "Ali")
+        self.assertEqual(field.get(), "Ali")
         field.set("Hamza")
         self.assertEqual(field.get(), "Hamza")
         field.set_error("Required")
