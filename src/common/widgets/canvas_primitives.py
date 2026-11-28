@@ -1,4 +1,4 @@
-"""Seamless single-polygon Canvas primitives for rounded rectangles and true pills."""
+"""Smooth Canvas primitives for rounded rectangles and concentric RoundCap pills."""
 
 import math
 import tkinter as tk
@@ -10,9 +10,9 @@ def _rounded_rect_points(
     x2: float,
     y2: float,
     radius: float,
-    segments: int = 12,
+    segments: int = 24,
 ) -> list[float]:
-    """Generate exact circular-arc polygon vertices for a rounded rectangle."""
+    """Generate high-density circular-arc polygon vertices for a rounded rectangle."""
     w = x2 - x1
     h = y2 - y1
     r = max(0.0, min(float(radius), w / 2.0, h / 2.0))
@@ -20,7 +20,6 @@ def _rounded_rect_points(
         return [x1, y1, x2, y1, x2, y2, x1, y2]
 
     pts: list[float] = []
-    # Corner centers and angle ranges (in radians, screen y-down)
     corners = (
         (x2 - r, y1 + r, -math.pi / 2.0, 0.0),          # top-right
         (x2 - r, y2 - r, 0.0, math.pi / 2.0),           # bottom-right
@@ -47,8 +46,8 @@ def draw_rounded_rect(
     width: float = 1,
     tag: str = "rounded_bg",
 ) -> int:
-    """Draw a seamless rounded rectangle using a single circular-arc polygon."""
-    pts = _rounded_rect_points(x1, y1, x2, y2, radius=radius, segments=12)
+    """Draw a smooth rounded rectangle using a high-density circular-arc polygon."""
+    pts = _rounded_rect_points(x1, y1, x2, y2, radius=radius, segments=24)
     return canvas.create_polygon(
         pts,
         fill=fill,
@@ -69,16 +68,49 @@ def draw_pill(
     width: float = 1,
     tag: str = "pill_bg",
 ) -> int:
-    """Draw a seamless semicircular pill (rounded-full) using a single polygon."""
-    radius = max(0.0, (y2 - y1) / 2.0)
-    pts = _rounded_rect_points(x1, y1, x2, y2, radius=radius, segments=16)
-    return canvas.create_polygon(
-        pts,
-        fill=fill,
-        outline=outline,
-        width=width if outline else 0,
-        tags=(tag,),
-    )
+    """Draw a smooth semicircular pill using concentric native RoundCap strokes."""
+    h = max(4.0, y2 - y1)
+    r = h / 2.0
+    cy = (y1 + y2) / 2.0
+    lx = x1 + r
+    rx = max(lx, x2 - r)
+
+    item_id = 0
+    if outline and width > 0:
+        item_id = canvas.create_line(
+            lx,
+            cy,
+            rx,
+            cy,
+            width=h,
+            capstyle=tk.ROUND,
+            fill=outline,
+            tags=(tag,),
+        )
+        inner_w = max(2.0, h - 2.0 * width)
+        if fill:
+            item_id = canvas.create_line(
+                lx,
+                cy,
+                rx,
+                cy,
+                width=inner_w,
+                capstyle=tk.ROUND,
+                fill=fill,
+                tags=(tag,),
+            )
+    elif fill:
+        item_id = canvas.create_line(
+            lx,
+            cy,
+            rx,
+            cy,
+            width=h,
+            capstyle=tk.ROUND,
+            fill=fill,
+            tags=(tag,),
+        )
+    return item_id
 
 
 def resolve_parent_bg(widget: tk.Misc, fallback: str) -> str:

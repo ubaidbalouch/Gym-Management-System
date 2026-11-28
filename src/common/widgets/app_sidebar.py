@@ -6,7 +6,7 @@ from tkinter import ttk
 from typing import Callable, Optional, Sequence
 
 from src.common.theme import AppTheme
-from .canvas_primitives import draw_pill, draw_rounded_rect
+from .canvas_primitives import draw_pill
 
 
 @dataclass(frozen=True)
@@ -139,7 +139,7 @@ class AppSidebar(tk.Frame):
         logo_badge = tk.Canvas(
             brand_bar, width=32, height=32, bg=c.sidebar_bg, bd=0, highlightthickness=0
         )
-        draw_rounded_rect(logo_badge, 1, 1, 30, 30, radius=9, fill=c.primary, outline="")
+        logo_badge.create_oval(2, 2, 29, 29, fill=c.primary, outline="")
         logo_badge.create_text(
             15.5,
             15.5,
