@@ -94,7 +94,7 @@ class _SidebarItemButton(tk.Canvas):
             )
 
         self.create_text(
-            15,
+            18,
             h / 2.0,
             text=self.item.icon,
             fill=fg,
@@ -102,7 +102,7 @@ class _SidebarItemButton(tk.Canvas):
             anchor="w",
         )
         self.create_text(
-            38,
+            40,
             h / 2.0,
             text=self.item.label,
             fill=fg,
